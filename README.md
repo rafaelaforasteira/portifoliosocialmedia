@@ -1,10 +1,10 @@
 # Raffaela Forasteira — portfólio
 
-Base visual do hero em validação: fundo branco acinzentado, fotografia original um pouco menor, degradê preto em toda a largura do hero e grain fino mais perceptível. Todos os textos e elementos de interface foram retirados temporariamente. A próxima seção continua sendo apenas um bloco vazio para testes de scroll.
+Hero com vídeo cinematográfico de seis segundos e interface sincronizada pelo tempo real da mídia. O menu fixo permanece independente e preservado. Nenhuma outra seção foi criada: há apenas o bloco vazio `#continuacao` para o convite de scroll.
 
-## Executar e verificar
+## Stack e execução
 
-Stack: Next.js 16, App Router, React 19, TypeScript, Tailwind CSS 4 e GSAP. Node.js 22 ou superior recomendado.
+Next.js 16 / App Router, React 19, TypeScript, Tailwind CSS 4, GSAP e @gsap/react. Roboto na interface da hero, Manrope no menu existente. Fontes servidas pelo Next Font; o build precisa de acesso ao Google Fonts. Node.js 22+ recomendado.
 
 ```bash
 npm ci
@@ -13,39 +13,49 @@ npm run lint
 npm run typecheck
 npm run build
 npm start
+npm run test:e2e
 ```
 
-Com o servidor local rodando, `npm run test:e2e` verifica nove resoluções (mobile, HD e ultrawide até 3440×1440), ausência de texto, imagem carregada, ausência de overflow, cobertura integral do hero pelo degradê e ordem das camadas e movimento reduzido. Usa Edge headless; para outro ambiente, configure o browser em `playwright.config.ts`. Capturas ficam em `.qa/`, ignorado pelo Git.
+Os testes de navegador usam Edge headless e requerem servidor local em execução. `PLAYWRIGHT_BASE_URL` permite apontar para outra instância; configure `channel` em `playwright.config.ts` se necessário.
 
-## Estrutura
+## Onde editar
 
-- `src/components/hero/Hero.tsx`: mantém a composição original, renderizando somente o retrato nesta etapa.
-- `HeroPortrait.tsx`: fotografia original centralizada. Grain e degradê são irmãos do palco da imagem, diretamente no hero.
-- `HeroHeadline.tsx` e `ScrollIndicator.tsx`: copy preservada para futura reinserção; não são renderizados.
-- `src/lib/constants/hero.ts`: caminho e descrição acessível da foto.
-- `src/lib/animations/hero.ts`: entrada por opacidade, desativada com movimento reduzido.
-- `src/app/globals.css`: fundo, escala, posição e tratamento monocromático.
+- `src/components/hero/Hero.tsx`: vídeo decorativo, camadas, conteúdo e fallback sem JavaScript.
+- `src/components/hero/HeroHeadline.tsx`: máscaras independentes da headline.
+- `src/components/hero/ScrollIndicator.tsx`: CTA sem animação infinita.
+- `src/lib/animations/hero.ts`: sincronização e ciclo de vida.
+- `src/lib/constants/hero-intro.ts`: **HERO_TIMING**, **HERO_MOTION**, **HERO_VIDEO** e **HERO_COPY**.
+- `src/app/globals.css`: layout da hero, enquadramento estático por breakpoint, estados iniciais e movimento reduzido.
+- `src/app/layout.tsx`: fontes e metadados.
 
-## Foto original e tratamento
+## Sincronização
 
-`public/images/hero/raffaela-hero.png` é uma cópia idêntica do arquivo enviado pela usuária. Nenhuma pessoa foi gerada e nenhum rosto ou roupa foi alterado. O fundo claro original está visível: a máscara de recorte da versão escura não é aplicada nesta versão.
+Uma timeline GSAP pausada recebe `timeline.time(video.currentTime, false)`. `requestVideoFrameCallback` atualiza a interface conforme os frames apresentados; `requestAnimationFrame` é o fallback. Eventos `timeupdate` e `seeked` mantêm coerência ao pausar/avançar. Não há tweens, parallax, deslocamentos ou escalas aplicados à personagem ou ao vídeo: todo o movimento vem do MP4.
 
-O Next Image otimiza a entrega. O grain `.hero-grain` e o degradê `.hero-shade` são camadas absolutas com `inset: 0` no hero, independentes da largura máxima da imagem. A ordem explícita é fundo claro → fotografia (z-index 1) → grain (2) → degradê preto (3). O degradê alcança ambas as laterais da viewport e toda a borda inferior da primeira dobra. O degradê concentra o preto na parte inferior e preserva o rosto. Não existem glow, acentos coloridos ou interface lateral.
+Minutagens em `HERO_TIMING` (segundos): eyebrow 1.40, titleLine1 2.05, titleLine2 2.38, description 3.20, cta 3.70, settled 4.20. Durações, deslocamentos do texto e tempo de fallback ficam em `HERO_MOTION`.
 
-A escala está em `.portrait-plane`: até 88% da composição, limitada a 2160px e à altura da viewport. Os tokens ativos são `--bg`, `--foreground` e `--portrait-black`. A imagem fica centralizada, com ajuste de enquadramento para mobile. Textura em `public/textures/grain.svg`.
+As linhas começam ocultas via CSS e sobem dentro de containers com overflow hidden. Não há flash de texto antes da hidratação. O CTA termina sua entrada em 4.20s. Nesse ponto o loop de sincronização para, enquanto o vídeo continua até o fim. Ao terminar, seu último frame permanece no próprio elemento, sem loop ou reinício. Listeners, callbacks e timeline são limpos no unmount.
 
-As fontes permanecem configuradas em `next/font` para o retorno dos textos; o build requer acesso ao Google Fonts. A máscara e seu script da versão anterior foram mantidos no repositório, mas não participam da renderização atual.
+## Vídeo e fallback
 
-## Próximas etapas
+Vídeo original fornecido pela usuária: `public/videos/hero-intro.mp4` (1920×1080, seis segundos, aproximadamente 2,6 MB). O elemento usa autoplay, muted, playsInline e preload auto, sem controles ou loop. Troque o arquivo ou o caminho em `HERO_VIDEO`.
 
-Após validar a base, reinserir headline e convite. Storytelling, cases, experiência e contato ainda não foram implementados.
+`hero-poster.webp` é um frame inicial extraído do vídeo. `hero-final.webp` é um frame final extraído do mesmo vídeo, utilizado quando autoplay falha, ocorre erro, JavaScript está desligado ou há preferência por movimento reduzido. Ao trocar o vídeo, atualize também esses frames para que correspondam ao novo arquivo.
 
-O fundo da tela usa #fdfdfd (RGB 253, 253, 253), o tom mais frequente nas bordas claras da imagem original, para minimizar a diferença entre fotografia e página.
+Há um único watchdog de oito segundos para mídia indisponível/estagnada; ele não controla a coreografia. É reiniciado somente com progresso ou eventos de reprodução. Falha de play e erro de mídia mostram imediatamente o estado final. Movimento reduzido pausa e oculta o vídeo, mostra o frame final e torna o conteúdo visível. O fallback não tenta reproduzir novamente.
 
-## Menu superior
+## Copy
 
-`src/components/navigation/SiteHeader.tsx` reutiliza `/icon.svg`, nas cores originais, incluindo o ponto roxo, e mantém navegação fixa de 72px (64px no mobile). O CSS está isolado em `SiteHeader.module.css`; o hero não foi alterado. A prop `tone="light" | "dark"` prepara o glass para futuras seções, sem alternância automática nesta etapa.
+A headline e o CTA preservam o texto aprovado. O eyebrow usa o nome da profissional. `HERO_COPY.description` está vazio, pois não foi fornecida descrição definitiva. Preenchê-lo habilita automaticamente a entrada em 3.20s, sem mudar a lógica da timeline. O link do CTA continua apontando para `#continuacao`.
 
-Os links apontam para `#sobre`, `#cases`, `#processo`, `#experiencia` e `#contato`. As seções ainda não existem; a rolagem suave funcionará quando forem adicionadas com esses IDs. O deslocamento de 88px evita que títulos fiquem sob o menu. No mobile, aparecem apenas logo e contato. Movimento reduzido e foco por teclado são respeitados.
+## Responsividade
 
-A barra utiliza vidro branco a 38%, blur de 18px com saturação de 140%, brilho interno e sombra leve. O favicon é reutilizado sem filtros que removam ou alterem suas cores.
+Desktop: vídeo cover, conteúdo à esquerda e personagem à direita no final. Ultrawide tem ajuste estático de object-position. Até 900px, o vídeo ocupa a área superior e o conteúdo aparece abaixo, sobre base escura, para preservar o rosto ao longo do movimento. O enquadramento nunca é animado por CSS/JS.
+
+O grain e a base escura permanecem em camadas entre vídeo e interface. O vídeo é oculto da árvore acessível; o conteúdo tem h1 e link reais. O menu mantém seu favicon original, glass, navegação e comportamento fixo.
+
+## Validação
+
+Os testes cobrem desktop 1920×1080, ultrawide 3440×1440, notebook, tablet e mobile; fim sem loop; muted; transform ausente no vídeo; pause/seek sincronizados; início atrasado sem flash; falha de autoplay; erro de mídia; requestAnimationFrame; movimento reduzido; watchdog de stall; e JavaScript desligado. As capturas ficam em `.qa/` e não são versionadas. A navegação tem testes próprios de foco, blur e posicionamento fixo.
+
+As fotografias e máscaras das versões anteriores permanecem no repositório como referência, mas não são usadas na hero atual. As seções #sobre, #cases, #processo, #experiencia e #contato ainda serão implementadas.

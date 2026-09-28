@@ -1,8 +1,124 @@
 import gsap from "gsap";
-export function animateHero(root: HTMLElement) {
-  const mm = gsap.matchMedia();
-  mm.add("(prefers-reduced-motion: no-preference)", () => {
-    gsap.from(root.querySelector(".portrait-reveal"), { opacity: 0, duration: 1, ease: "power2.out" });
-  });
-  return () => mm.revert();
+import { HERO_MOTION as motion, HERO_TIMING as timing } from "@/lib/constants/hero-intro";
+
+/** The video is the only clock. No animation ever transforms the media layer. */
+export function animateHero(root: HTMLElement, video: HTMLVideoElement) {
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const timeline = gsap.timeline({ paused: true });
+  const find = (name: string) => root.querySelector<HTMLElement>(`[data-reveal="${name}"]`);
+  const fade = (name: string, at: number, y: number, duration: number) => {
+    const element = find(name);
+    if (element) timeline.fromTo(element, { autoAlpha: 0, y }, { autoAlpha: 1, y: 0, duration, ease: "power3.out", immediateRender: true }, at);
+  };
+  fade("eyebrow", timing.eyebrow, motion.labelOffset, motion.labelDuration);
+  for (const name of ["titleLine1", "titleLine2"] as const) {
+    const element = find(name);
+    if (element) timeline.fromTo(element,
+      { y: 0, yPercent: motion.titleOffsetPercent, autoAlpha: 0 },
+      { y: 0, yPercent: 0, autoAlpha: 1, duration: motion.titleDuration, ease: "power4.out", immediateRender: true }, timing[name]);
+  }
+  fade("description", timing.description, motion.descriptionOffset, motion.descriptionDuration);
+  fade("cta", timing.cta, motion.ctaOffset, motion.ctaDuration);
+
+  let frame: number | undefined;
+  let frameType: "video" | "animation" | undefined;
+  let watchdog: ReturnType<typeof setTimeout> | undefined;
+  let disposed = false;
+  let fallback = false;
+  let lastProgress = video.currentTime;
+  const clearWatchdog = () => { if (watchdog !== undefined) clearTimeout(watchdog); watchdog = undefined; };
+  const cancelFrame = () => {
+    if (frame !== undefined) {
+      if (frameType === "video") video.cancelVideoFrameCallback(frame);
+      else cancelAnimationFrame(frame);
+    }
+    frame = undefined;
+  };
+  const finalUI = () => { timeline.time(timing.settled, false); };
+  const showFallback = () => {
+    if (disposed) return;
+    fallback = true;
+    cancelFrame(); clearWatchdog(); video.pause();
+    root.dataset.introState = media.matches ? "reduced" : "fallback";
+    finalUI();
+  };
+  // One watchdog for unavailable/stalled playback; never used for choreography.
+  const armWatchdog = () => {
+    clearWatchdog();
+    if (!fallback && video.currentTime < timing.settled) watchdog = setTimeout(showFallback, motion.fallbackDelayMs);
+  };
+  const sync = () => {
+    if (disposed || fallback) return;
+    timeline.time(video.currentTime, false);
+    root.dataset.introState = video.ended ? "ended" : video.currentTime >= timing.settled ? "settled" : "playing";
+    if (video.currentTime >= timing.settled) { cancelFrame(); clearWatchdog(); }
+  };
+  const tick = () => { frame = undefined; sync(); schedule(); };
+  const schedule = () => {
+    if (disposed || fallback || frame !== undefined || video.paused || video.ended || video.currentTime >= timing.settled) return;
+    if (typeof video.requestVideoFrameCallback === "function") {
+      frameType = "video"; frame = video.requestVideoFrameCallback(tick);
+    } else {
+      frameType = "animation"; frame = requestAnimationFrame(tick);
+    }
+  };
+  const onPlay = () => {
+    if (fallback || media.matches) { video.pause(); return; }
+    sync(); armWatchdog(); schedule();
+  };
+  const onPause = () => { cancelFrame(); if (!video.ended) armWatchdog(); };
+  const onTime = () => {
+    if (fallback) return;
+    sync();
+    if (video.currentTime !== lastProgress) { lastProgress = video.currentTime; armWatchdog(); }
+  };
+  const onSeek = () => { sync(); schedule(); };
+  const onEnd = () => {
+    if (fallback) return;
+    cancelFrame(); clearWatchdog(); finalUI(); root.dataset.introState = "ended";
+    // Keep the video element and its final decoded frame. Never reset currentTime.
+  };
+  const start = () => {
+    if (disposed || fallback) return;
+    if (media.matches) { showFallback(); return; }
+    video.muted = true; video.defaultMuted = true;
+    armWatchdog();
+    video.play()?.catch(() => { if (!disposed) showFallback(); });
+  };
+  const onPreference = () => {
+    if (media.matches) showFallback();
+    // Do not replay the intro when the preference is switched off.
+  };
+  const onVisibility = () => {
+    if (document.hidden) { cancelFrame(); clearWatchdog(); }
+    else { sync(); armWatchdog(); schedule(); }
+  };
+  video.addEventListener("loadedmetadata", start);
+  video.addEventListener("play", onPlay);
+  video.addEventListener("playing", onPlay);
+  video.addEventListener("pause", onPause);
+  video.addEventListener("timeupdate", onTime);
+  video.addEventListener("seeked", onSeek);
+  video.addEventListener("waiting", armWatchdog);
+  video.addEventListener("ended", onEnd);
+  video.addEventListener("error", showFallback);
+  media.addEventListener("change", onPreference);
+  document.addEventListener("visibilitychange", onVisibility);
+  if (video.error) showFallback(); else start();
+
+  return () => {
+    disposed = true; cancelFrame(); clearWatchdog();
+    video.removeEventListener("loadedmetadata", start);
+    video.removeEventListener("play", onPlay);
+    video.removeEventListener("playing", onPlay);
+    video.removeEventListener("pause", onPause);
+    video.removeEventListener("timeupdate", onTime);
+    video.removeEventListener("seeked", onSeek);
+    video.removeEventListener("waiting", armWatchdog);
+    video.removeEventListener("ended", onEnd);
+    video.removeEventListener("error", showFallback);
+    media.removeEventListener("change", onPreference);
+    document.removeEventListener("visibilitychange", onVisibility);
+    timeline.revert();
+  };
 }
