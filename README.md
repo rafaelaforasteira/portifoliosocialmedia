@@ -1,6 +1,6 @@
 # Raffaela Forasteira — portfólio
 
-Base visual do hero em validação: fundo branco acinzentado, fotografia original um pouco menor, degradê preto preso à imagem e grain fino. Todos os textos e elementos de interface foram retirados temporariamente. A próxima seção continua sendo apenas um bloco vazio para testes de scroll.
+Base visual do hero em validação: fundo branco acinzentado, fotografia original um pouco menor, degradê preto em toda a largura do hero e grain fino mais perceptível. Todos os textos e elementos de interface foram retirados temporariamente. A próxima seção continua sendo apenas um bloco vazio para testes de scroll.
 
 ## Executar e verificar
 
@@ -15,12 +15,12 @@ npm run build
 npm start
 ```
 
-Com o servidor local rodando, `npm run test:e2e` verifica nove resoluções (mobile, HD e ultrawide até 3440×1440), ausência de texto, imagem carregada, ausência de overflow, alinhamento do degradê à foto e movimento reduzido. Usa Edge headless; para outro ambiente, configure o browser em `playwright.config.ts`. Capturas ficam em `.qa/`, ignorado pelo Git.
+Com o servidor local rodando, `npm run test:e2e` verifica nove resoluções (mobile, HD e ultrawide até 3440×1440), ausência de texto, imagem carregada, ausência de overflow, cobertura integral do hero pelo degradê e ordem das camadas e movimento reduzido. Usa Edge headless; para outro ambiente, configure o browser em `playwright.config.ts`. Capturas ficam em `.qa/`, ignorado pelo Git.
 
 ## Estrutura
 
 - `src/components/hero/Hero.tsx`: mantém a composição original, renderizando somente o retrato nesta etapa.
-- `HeroPortrait.tsx`: fotografia, degradê e grain dentro de um único contêiner.
+- `HeroPortrait.tsx`: fotografia original centralizada. Grain e degradê são irmãos do palco da imagem, diretamente no hero.
 - `HeroHeadline.tsx` e `ScrollIndicator.tsx`: copy preservada para futura reinserção; não são renderizados.
 - `src/lib/constants/hero.ts`: caminho e descrição acessível da foto.
 - `src/lib/animations/hero.ts`: entrada por opacidade, desativada com movimento reduzido.
@@ -30,7 +30,7 @@ Com o servidor local rodando, `npm run test:e2e` verifica nove resoluções (mob
 
 `public/images/hero/raffaela-hero.png` é uma cópia idêntica do arquivo enviado pela usuária. Nenhuma pessoa foi gerada e nenhum rosto ou roupa foi alterado. O fundo claro original está visível: a máscara de recorte da versão escura não é aplicada nesta versão.
 
-O Next Image otimiza a entrega. O degradê `.portrait-shade` e o grain `.portrait-grain` são camadas de exibição, dimensionadas pelo mesmo contêiner da foto. O degradê concentra o preto na parte inferior e preserva o rosto. Não existem glow, acentos coloridos ou interface lateral.
+O Next Image otimiza a entrega. O grain `.hero-grain` e o degradê `.hero-shade` são camadas absolutas com `inset: 0` no hero, independentes da largura máxima da imagem. A ordem explícita é fundo claro → fotografia (z-index 1) → grain (2) → degradê preto (3). O degradê alcança ambas as laterais da viewport e toda a borda inferior da primeira dobra. O degradê concentra o preto na parte inferior e preserva o rosto. Não existem glow, acentos coloridos ou interface lateral.
 
 A escala está em `.portrait-plane`: até 88% da composição, limitada a 2160px e à altura da viewport. Os tokens ativos são `--bg`, `--foreground` e `--portrait-black`. A imagem fica centralizada, com ajuste de enquadramento para mobile. Textura em `public/textures/grain.svg`.
 
