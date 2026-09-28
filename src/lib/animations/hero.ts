@@ -4,6 +4,10 @@ import { HERO_MOTION as motion, HERO_TIMING as timing, HERO_VIDEO_MOTION as fram
 /** The video is the only clock for both framing and interface. */
 export function animateHero(root: HTMLElement, video: HTMLVideoElement) {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  // Explicit preview opt-in; keep the accessible default for ordinary visits.
+  const playIntro = new URLSearchParams(window.location.search).get("intro") === "play";
+  root.dataset.motion = playIntro ? "play" : "system";
+  const reduceMotion = () => media.matches && !playIntro;
   const timeline = gsap.timeline({ paused: true });
   const compact = window.matchMedia("(max-width: 900px)");
   const wide = window.matchMedia("(min-aspect-ratio: 2/1)");
@@ -59,7 +63,7 @@ export function animateHero(root: HTMLElement, video: HTMLVideoElement) {
     if (disposed) return;
     fallback = true;
     cancelFrame(); clearWatchdog(); video.pause();
-    root.dataset.introState = media.matches ? "reduced" : "fallback";
+    root.dataset.introState = reduceMotion() ? "reduced" : "fallback";
     finalUI();
   };
   // One watchdog for unavailable/stalled playback; never used for choreography.
@@ -83,7 +87,7 @@ export function animateHero(root: HTMLElement, video: HTMLVideoElement) {
     }
   };
   const onPlay = () => {
-    if (fallback || media.matches) { video.pause(); return; }
+    if (fallback || reduceMotion()) { video.pause(); return; }
     sync(); armWatchdog(); schedule();
   };
   const onPause = () => { cancelFrame(); if (!video.ended) armWatchdog(); };
@@ -100,13 +104,13 @@ export function animateHero(root: HTMLElement, video: HTMLVideoElement) {
   };
   const start = () => {
     if (disposed || fallback) return;
-    if (media.matches) { showFallback(); return; }
+    if (reduceMotion()) { showFallback(); return; }
     video.muted = true; video.defaultMuted = true;
     armWatchdog();
     video.play()?.catch(() => { if (!disposed) showFallback(); });
   };
   const onPreference = () => {
-    if (media.matches) showFallback();
+    if (reduceMotion()) showFallback();
     // Do not replay the intro when the preference is switched off.
   };
   const onVisibility = () => {

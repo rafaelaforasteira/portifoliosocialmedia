@@ -95,6 +95,20 @@ for (const mode of ['blocked','error','reduced','raf'] as const) {
   });
 }
 
+test('Explicit intro preview plays even with system reduced motion', async ({page}) => {
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto('/?intro=play');
+  await page.waitForFunction(() => document.querySelector('video')!.readyState >= 2);
+  await seek(page, .5);
+  await expect(page.locator('video')).toHaveCSS('visibility','visible');
+  await expect(page.locator('.hero-cta')).toHaveCSS('opacity','0');
+  await seek(page, 2.25);
+  await expect(page.locator('.hero-eyebrow')).toHaveCSS('opacity','1');
+  await expect(page.locator('.title-line-2')).toHaveCSS('opacity','0');
+  await seek(page, 4.3);
+  await expect(page.locator('.hero-cta')).toHaveCSS('opacity','1');
+});
+
 test('Playback stalled before the intro completes reveals fallback', async ({page}) => {
   await page.goto('/');
   await page.waitForFunction(() => document.querySelector('video')!.readyState >= 2);

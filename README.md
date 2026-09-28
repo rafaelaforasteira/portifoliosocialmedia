@@ -59,3 +59,5 @@ A opacidade do grain em .hero-grain (src/app/globals.css) é .24, aumento de 50%
 Os testes cobrem desktop 1920×1080, ultrawide 3440×1440, notebook, tablet e mobile; fim sem loop; muted; zoom sincronizado, estável em pausa e responsivo; pause/seek sincronizados; início atrasado sem flash; falha de autoplay; erro de mídia; requestAnimationFrame; movimento reduzido; watchdog de stall; e JavaScript desligado. As capturas ficam em `.qa/` e não são versionadas. A navegação tem testes próprios de foco, blur e posicionamento fixo.
 
 As fotografias e máscaras das versões anteriores permanecem no repositório como referência, mas não são usadas na hero atual. As seções #sobre, #cases, #processo, #experiencia e #contato ainda serão implementadas.
+
+Para visualizar explicitamente a intro quando o sistema prefere movimento reduzido, abra `/?intro=play`. Esse opt-in vale apenas para essa URL; a visita normal mantém o fallback acessível.

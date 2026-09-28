@@ -41,6 +41,6 @@ body { font-family: var(--font-sans), sans-serif; -webkit-font-smoothing: antial
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
-  .hero-video { visibility: hidden; }
-  .hero [data-reveal] { opacity: 1 !important; visibility: visible !important; transform: none !important; }
+  .hero[data-intro-state="reduced"] .hero-video { visibility: hidden; }
+  .hero[data-intro-state="reduced"] [data-reveal] { opacity: 1 !important; visibility: visible !important; transform: none !important; }
 }
