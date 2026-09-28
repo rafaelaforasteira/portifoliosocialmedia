@@ -20,7 +20,9 @@ for (const [width, height] of [[1920,1080],[3440,1440],[1366,768],[768,1024],[39
     await expect(video).toHaveJSProperty('loop', false);
     await expect(video).toHaveJSProperty('controls', false);
     await expect(video).toHaveAttribute('playsinline', '');
-    await expect(video).toHaveCSS('transform', 'none');
+    const scale = await video.evaluate(v => new DOMMatrix(getComputedStyle(v).transform).a);
+    expect(scale).toBeCloseTo(width <= 900 ? 1 : width / height >= 2 ? 1.06 : 1.10, 3);
+    await expect(page.locator('.hero-grain')).toHaveCSS('opacity', '0.24');
     await expect(page.locator('.hero')).toHaveAttribute('data-intro-state', 'ended');
     await expect(page.locator('.title-line-1')).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 0, 0)');
     await expect(page.locator('.title-line-2')).toHaveCSS('opacity', '1');
@@ -36,22 +38,34 @@ for (const [width, height] of [[1920,1080],[3440,1440],[1366,768],[768,1024],[39
 }
 
 test('Timeline follows seeking and pauses, not wall-clock time', async ({page}) => {
+  await page.setViewportSize({width:1920,height:1080});
   await page.goto('/');
   await page.waitForFunction(() => document.querySelector('video')!.readyState >= 2);
   await seek(page, .5);
+  const scale = () => page.locator('video').evaluate(v => new DOMMatrix(getComputedStyle(v).transform).a);
+  const earlyScale = await scale();
   await expect(page.locator('.hero-eyebrow')).toHaveCSS('opacity','0');
   await page.waitForTimeout(1600);
+  expect(await scale()).toBeCloseTo(earlyScale, 4);
   await expect(page.locator('.hero-eyebrow')).toHaveCSS('opacity','0');
   await seek(page, 1.9);
   await expect(page.locator('.hero-eyebrow')).toHaveCSS('opacity','1');
   await expect(page.locator('.title-line-1')).toHaveCSS('opacity','0');
   await seek(page, 2.25);
+  expect(await scale()).toBeGreaterThan(earlyScale);
+  expect(await scale()).toBeLessThan(1.1);
   const mask = await page.locator('.title-line-1').evaluate(el => ({y:new DOMMatrix(getComputedStyle(el).transform).m42,h:el.getBoundingClientRect().height}));
   expect(mask.y).toBeGreaterThan(0); expect(mask.y).toBeLessThan(mask.h);
   await expect(page.locator('.title-line-2')).toHaveCSS('opacity','0');
   await seek(page, 4.3);
+  expect(await scale()).toBeCloseTo(1.1, 3);
+  await page.setViewportSize({width:3440,height:1440});
+  await expect.poll(scale).toBeCloseTo(1.06, 3);
+  await page.setViewportSize({width:1920,height:1080});
+  await expect.poll(scale).toBeCloseTo(1.1, 3);
   await expect(page.locator('.hero-cta')).toHaveCSS('opacity','1');
   await seek(page, .5);
+  expect(await scale()).toBeCloseTo(earlyScale, 4);
   await expect(page.locator('.hero-cta')).toHaveCSS('visibility','hidden');
 });
 

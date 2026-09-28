@@ -19,6 +19,15 @@ export const HERO_MOTION = {
   fallbackDelayMs: 8000,
 } as const;
 
+export const HERO_VIDEO_MOTION = {
+  zoomStart: 0,
+  zoomEnd: HERO_TIMING.settled,
+  scaleFrom: 1,
+  desktopHD: { scaleTo: 1.10, origin: "68% 35%", xPercent: -2.8 },
+  ultrawide: { scaleTo: 1.06, origin: "66% 35%", xPercent: -1.6 },
+  compact: { scaleTo: 1, origin: "68% 35%", xPercent: 0 },
+} as const;
+
 export const HERO_VIDEO = {
   src: "/videos/hero-intro.mp4",
   poster: "/videos/hero-poster.webp",

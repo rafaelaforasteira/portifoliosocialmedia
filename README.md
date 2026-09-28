@@ -24,13 +24,13 @@ Os testes de navegador usam Edge headless e requerem servidor local em execuçã
 - `src/components/hero/HeroHeadline.tsx`: máscaras independentes da headline.
 - `src/components/hero/ScrollIndicator.tsx`: CTA sem animação infinita.
 - `src/lib/animations/hero.ts`: sincronização e ciclo de vida.
-- `src/lib/constants/hero-intro.ts`: **HERO_TIMING**, **HERO_MOTION**, **HERO_VIDEO** e **HERO_COPY**.
+- `src/lib/constants/hero-intro.ts`: **HERO_TIMING**, **HERO_MOTION**, **HERO_VIDEO_MOTION**, **HERO_VIDEO** e **HERO_COPY**.
 - `src/app/globals.css`: layout da hero, enquadramento estático por breakpoint, estados iniciais e movimento reduzido.
 - `src/app/layout.tsx`: fontes e metadados.
 
 ## Sincronização
 
-Uma timeline GSAP pausada recebe `timeline.time(video.currentTime, false)`. `requestVideoFrameCallback` atualiza a interface conforme os frames apresentados; `requestAnimationFrame` é o fallback. Eventos `timeupdate` e `seeked` mantêm coerência ao pausar/avançar. Não há tweens, parallax, deslocamentos ou escalas aplicados à personagem ou ao vídeo: todo o movimento vem do MP4.
+Uma timeline GSAP pausada recebe `timeline.time(video.currentTime, false)`. `requestVideoFrameCallback` atualiza a interface conforme os frames apresentados; `requestAnimationFrame` é o fallback. Eventos `timeupdate` e `seeked` mantêm coerência ao pausar/avançar. O reposicionamento da personagem vem do MP4. A camada do vídeo recebe um zoom suave, sincronizado pela mesma timeline, com compensação horizontal para valorizar o rosto.
 
 Minutagens em `HERO_TIMING` (segundos): eyebrow 1.40, titleLine1 2.05, titleLine2 2.38, description 3.20, cta 3.70, settled 4.20. Durações, deslocamentos do texto e tempo de fallback ficam em `HERO_MOTION`.
 
@@ -50,12 +50,12 @@ A headline e o CTA preservam o texto aprovado. O eyebrow usa o nome da profissio
 
 ## Responsividade
 
-Desktop: vídeo cover, conteúdo à esquerda e personagem à direita no final. Ultrawide tem ajuste estático de object-position. Até 900px, o vídeo ocupa a área superior e o conteúdo aparece abaixo, sobre base escura, para preservar o rosto ao longo do movimento. O enquadramento nunca é animado por CSS/JS.
+Desktop: vídeo cover, conteúdo à esquerda e personagem à direita no final. Ultrawide tem ajuste estático de object-position. Até 900px, o vídeo ocupa a área superior e o conteúdo aparece abaixo, sobre base escura, para preservar o rosto ao longo do movimento. O enquadramento desktop recebe zoom de 0 a 4.20s com ease sine.inOut. HERO_VIDEO_MOTION centraliza escala inicial 1, escala final 1.10 em HD/notebook e 1.06 em ultrawide, origens 68% 35% e 66% 35%, e compensações horizontais de -2.8% e -1.6%. Até 900px a escala permanece 1 para preservar o enquadramento móvel. Mudanças de breakpoint recalculam o zoom no tempo atual, sem reiniciar a intro. O frame de fallback recebe o mesmo enquadramento final.
 
-O grain e a base escura permanecem em camadas entre vídeo e interface. O vídeo é oculto da árvore acessível; o conteúdo tem h1 e link reais. O menu mantém seu favicon original, glass, navegação e comportamento fixo.
+A opacidade do grain em .hero-grain (src/app/globals.css) é .24, aumento de 50% sobre .16; a textura fina e o blend multiply foram preservados. O grain e a base escura permanecem em camadas entre vídeo e interface. O vídeo é oculto da árvore acessível; o conteúdo tem h1 e link reais. O menu mantém seu favicon original, glass, navegação e comportamento fixo.
 
 ## Validação
 
-Os testes cobrem desktop 1920×1080, ultrawide 3440×1440, notebook, tablet e mobile; fim sem loop; muted; transform ausente no vídeo; pause/seek sincronizados; início atrasado sem flash; falha de autoplay; erro de mídia; requestAnimationFrame; movimento reduzido; watchdog de stall; e JavaScript desligado. As capturas ficam em `.qa/` e não são versionadas. A navegação tem testes próprios de foco, blur e posicionamento fixo.
+Os testes cobrem desktop 1920×1080, ultrawide 3440×1440, notebook, tablet e mobile; fim sem loop; muted; zoom sincronizado, estável em pausa e responsivo; pause/seek sincronizados; início atrasado sem flash; falha de autoplay; erro de mídia; requestAnimationFrame; movimento reduzido; watchdog de stall; e JavaScript desligado. As capturas ficam em `.qa/` e não são versionadas. A navegação tem testes próprios de foco, blur e posicionamento fixo.
 
 As fotografias e máscaras das versões anteriores permanecem no repositório como referência, mas não são usadas na hero atual. As seções #sobre, #cases, #processo, #experiencia e #contato ainda serão implementadas.

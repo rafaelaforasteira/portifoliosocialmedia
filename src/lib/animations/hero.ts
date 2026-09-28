@@ -1,10 +1,23 @@
 import gsap from "gsap";
-import { HERO_MOTION as motion, HERO_TIMING as timing } from "@/lib/constants/hero-intro";
+import { HERO_MOTION as motion, HERO_TIMING as timing, HERO_VIDEO_MOTION as framing } from "@/lib/constants/hero-intro";
 
-/** The video is the only clock. No animation ever transforms the media layer. */
+/** The video is the only clock for both framing and interface. */
 export function animateHero(root: HTMLElement, video: HTMLVideoElement) {
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
   const timeline = gsap.timeline({ paused: true });
+  const compact = window.matchMedia("(max-width: 900px)");
+  const wide = window.matchMedia("(min-aspect-ratio: 2/1)");
+  const profile = () => compact.matches ? framing.compact : wide.matches ? framing.ultrawide : framing.desktopHD;
+  const layers = root.querySelectorAll<HTMLElement>(".hero-video, .hero-final-frame");
+  const setOrigin = () => gsap.set(layers, { transformOrigin: profile().origin });
+  setOrigin();
+  const zoom = gsap.fromTo(layers, { scale: framing.scaleFrom, xPercent: 0 }, {
+    scale: () => profile().scaleTo,
+    xPercent: () => profile().xPercent,
+    duration: framing.zoomEnd - framing.zoomStart,
+    ease: "sine.inOut", paused: false,
+  });
+  timeline.add(zoom, framing.zoomStart);
   const find = (name: string) => root.querySelector<HTMLElement>(`[data-reveal="${name}"]`);
   const fade = (name: string, at: number, y: number, duration: number) => {
     const element = find(name);
@@ -26,6 +39,13 @@ export function animateHero(root: HTMLElement, video: HTMLVideoElement) {
   let disposed = false;
   let fallback = false;
   let lastProgress = video.currentTime;
+  const onFraming = () => {
+    setOrigin();
+    zoom.invalidate();
+    zoom.totalTime(Math.max(0, (fallback ? timing.settled : video.currentTime) - framing.zoomStart), true);
+  };
+  compact.addEventListener("change", onFraming);
+  wide.addEventListener("change", onFraming);
   const clearWatchdog = () => { if (watchdog !== undefined) clearTimeout(watchdog); watchdog = undefined; };
   const cancelFrame = () => {
     if (frame !== undefined) {
@@ -108,6 +128,8 @@ export function animateHero(root: HTMLElement, video: HTMLVideoElement) {
 
   return () => {
     disposed = true; cancelFrame(); clearWatchdog();
+    compact.removeEventListener("change", onFraming);
+    wide.removeEventListener("change", onFraming);
     video.removeEventListener("loadedmetadata", start);
     video.removeEventListener("play", onPlay);
     video.removeEventListener("playing", onPlay);
