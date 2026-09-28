@@ -1,0 +1,53 @@
+.header {
+  --nav-ink: #111;
+  --nav-paper: #fff;
+  --nav-glass: rgb(253 253 253 / 76%);
+  --nav-line: rgb(0 0 0 / 6%);
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 50;
+  color: var(--nav-ink);
+  background: var(--nav-glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--nav-line);
+  font-family: var(--font-sans), sans-serif;
+}
+.header[data-tone="dark"] {
+  --nav-ink: #f5f5f3;
+  --nav-paper: #111;
+  --nav-glass: rgb(10 10 10 / 80%);
+  --nav-line: rgb(255 255 255 / 8%);
+}
+.inner {
+  height: 72px;
+  max-width: 2560px;
+  margin-inline: auto;
+  padding-inline: clamp(24px, 5vw, 88px);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 28px;
+}
+.header a { color: inherit; text-decoration: none; }
+.header a:focus-visible { outline: 2px solid currentColor; outline-offset: 6px; }
+.logo { justify-self: start; width: 44px; height: 44px; display: grid; place-items: center; }
+.mark { width: 32px; height: 32px; filter: grayscale(1); }
+.header[data-tone="dark"] .mark { filter: grayscale(1) invert(1); }
+.links { display: flex; align-items: center; gap: clamp(24px, 2.8vw, 48px); list-style: none; padding: 0; margin: 0; }
+.link, .contact { font-size: 11px; font-weight: 600; letter-spacing: .11em; white-space: nowrap; }
+.link { position: relative; display: flex; align-items: center; min-height: 44px; }
+.link::after { content: ""; position: absolute; bottom: 7px; left: 0; right: 0; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .25s ease; }
+.link:hover::after, .link:focus-visible::after { transform: scaleX(1); }
+.header .contact { justify-self: end; display: grid; place-items: center; min-height: 40px; padding: 0 22px; color: var(--nav-paper); background: var(--nav-ink); border: 1px solid var(--nav-ink); border-radius: 4px; transition: background .2s ease, color .2s ease; }
+.header .contact:hover { background: transparent; color: var(--nav-ink); }
+:global(html) { scroll-behavior: smooth; scroll-padding-top: 88px; }
+@media (max-width: 760px) {
+  .inner { height: 64px; grid-template-columns: 1fr auto; gap: 16px; }
+  .links { display: none; }
+  .header .contact { padding-inline: 16px; font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  :global(html) { scroll-behavior: auto; }
+  .link::after, .header .contact { transition: none; }
+}
