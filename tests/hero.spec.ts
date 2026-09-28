@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const sizes = [[375,667],[390,844],[430,932],[1366,768],[1440,900],[1920,1080],[2560,1440]];
+const sizes = [[375,667],[390,844],[430,932],[1366,768],[1440,900],[1920,1080],[2560,1440],[2560,1080],[3440,1440]];
 for (const [width, height] of sizes) {
   test(`Hero íntegro em ${width}x${height}`, async ({ page }) => {
     const errors: string[] = [];

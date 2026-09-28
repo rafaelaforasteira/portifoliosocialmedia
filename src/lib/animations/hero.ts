@@ -11,7 +11,7 @@ export function animateHero(root: HTMLElement) {
       .from(q(".portrait-reveal"), { opacity: 0, scale: 1.03, filter: "blur(5px)" }, .25)
       .from(q('[data-reveal="intro"]'), { opacity: 0, y: 22 }, .4)
       .from(q('[data-reveal="main"]'), { opacity: 0, y: 35 }, .6)
-      .from(q(".clues, .glass-fragment, .edition"), { opacity: 0, duration: 1.5 }, .9)
+      .from(q(".edition"), { opacity: 0, duration: 1.5 }, .9)
       .from(q('[data-reveal="cta"]'), { opacity: 0, y: 8 }, 1.1)
       .from(q('[data-reveal="arrow"]'), { opacity: 0 }, 1.3);
     gsap.to(q(".headline"), { y: -28, ease: "none", scrollTrigger: { trigger: root, start: "top top", end: "bottom top", scrub: .6 } });

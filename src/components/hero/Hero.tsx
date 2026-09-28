@@ -4,8 +4,6 @@ import { useGSAP } from "@gsap/react";
 import { animateHero } from "@/lib/animations/hero";
 import { HeroPortrait } from "./HeroPortrait";
 import { HeroHeadline } from "./HeroHeadline";
-import { HeroClues } from "./HeroClues";
-import { HeroGlass } from "./HeroGlass";
 import { ScrollIndicator } from "./ScrollIndicator";
 
 export function Hero() {
@@ -16,8 +14,7 @@ export function Hero() {
       <header className="identity"><a href="#inicio" aria-label="Raffaela Forasteira, início"><span>RAFFAELA</span><span>FORASTEIRA</span></a><span className="identity-role">SOCIAL MEDIA</span></header>
       <span id="inicio" className="top-anchor" />
       <div className="atmosphere" data-depth="-12" aria-hidden="true" />
-      <div className="light-axis" aria-hidden="true" />
-      <HeroClues /><HeroPortrait /><HeroHeadline /><HeroGlass />
+      <HeroPortrait /><div className="portrait-shade" aria-hidden="true" /><HeroHeadline />
       <div className="edition" aria-hidden="true"><span>PORTFÓLIO</span><span className="edition-line" /><span>VOL. 01</span></div>
       <ScrollIndicator />
       <div className="frame-footer" aria-hidden="true"><span className="frame-index"><i />01 /</span><span className="frame-caption">RAFFAELA FORASTEIRA</span><span className="frame-cross">+</span></div>

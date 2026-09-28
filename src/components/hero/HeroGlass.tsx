@@ -1,3 +1,0 @@
-export function HeroGlass() {
-  return <div className="glass-layer" aria-hidden="true"><div className="glass-fragment glass-back" data-depth="-7"><span className="glass-cross">+</span><div className="orbital"><i /><i /><i /></div><span className="glass-code">◎ &nbsp; 001</span></div><div className="glass-fragment glass-front" data-depth="16"><span className="glass-corner" /><div className="signal-bars">{[12,24,18,32,46,28,40,22,14,30,18,9].map((height, i) => <i key={i} style={{ height }} />)}</div><span className="glass-code">↗ &nbsp; CONEXÕES</span><span className="glass-dot" /></div></div>;
-}
