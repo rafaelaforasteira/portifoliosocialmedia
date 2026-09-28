@@ -8,6 +8,8 @@ for (const width of [390, 1366, 3440]) {
     await page.goto("/");
     const nav = page.getByRole("navigation", { name: "Navegação principal" });
     await expect(nav).toBeVisible();
+    await expect(page.locator("header")).toHaveCSS("backdrop-filter", "blur(18px) saturate(1.4)");
+    await expect(nav.locator("img")).toHaveCSS("filter", "none");
     await expect(nav.locator("img")).toHaveAttribute("src", "/icon.svg");
     await expect(nav.getByRole("link", { name: "FALAR COMIGO" })).toHaveAttribute("href", "#contato");
     for (const [label, href] of [["SOBRE", "#sobre"], ["CASES", "#cases"], ["PROCESSO", "#processo"], ["EXPERIÊNCIA", "#experiencia"]]) {

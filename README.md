@@ -44,6 +44,8 @@ O fundo da tela usa #fdfdfd (RGB 253, 253, 253), o tom mais frequente nas bordas
 
 ## Menu superior
 
-`src/components/navigation/SiteHeader.tsx` reutiliza `/icon.svg`, com filtro monocromático, e mantém navegação fixa de 72px (64px no mobile). O CSS está isolado em `SiteHeader.module.css`; o hero não foi alterado. A prop `tone="light" | "dark"` prepara o glass para futuras seções, sem alternância automática nesta etapa.
+`src/components/navigation/SiteHeader.tsx` reutiliza `/icon.svg`, nas cores originais, incluindo o ponto roxo, e mantém navegação fixa de 72px (64px no mobile). O CSS está isolado em `SiteHeader.module.css`; o hero não foi alterado. A prop `tone="light" | "dark"` prepara o glass para futuras seções, sem alternância automática nesta etapa.
 
 Os links apontam para `#sobre`, `#cases`, `#processo`, `#experiencia` e `#contato`. As seções ainda não existem; a rolagem suave funcionará quando forem adicionadas com esses IDs. O deslocamento de 88px evita que títulos fiquem sob o menu. No mobile, aparecem apenas logo e contato. Movimento reduzido e foco por teclado são respeitados.
+
+A barra utiliza vidro branco a 38%, blur de 18px com saturação de 140%, brilho interno e sombra leve. O favicon é reutilizado sem filtros que removam ou alterem suas cores.
