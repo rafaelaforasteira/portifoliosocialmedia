@@ -1,6 +1,6 @@
 # Raffaela Forasteira — portfólio
 
-Base visual do hero em validação: fundo preto, fotografia original um pouco menor, degradê preto em toda a largura do hero e grain fino mais perceptível. Todos os textos e elementos de interface foram retirados temporariamente. A próxima seção continua sendo apenas um bloco vazio para testes de scroll.
+Base visual do hero em validação: fundo branco acinzentado, fotografia original um pouco menor, degradê preto em toda a largura do hero e grain fino mais perceptível. Todos os textos e elementos de interface foram retirados temporariamente. A próxima seção continua sendo apenas um bloco vazio para testes de scroll.
 
 ## Executar e verificar
 
@@ -28,9 +28,9 @@ Com o servidor local rodando, `npm run test:e2e` verifica nove resoluções (mob
 
 ## Foto original e tratamento
 
-`public/images/hero/raffaela-hero-dark.png` é uma cópia idêntica da nova imagem de fundo preto enviada pela usuária (1950×807). Nenhuma pessoa foi gerada e nenhum rosto ou roupa foi alterado. O fundo preto faz parte da nova fotografia. O fundo preto do hero, o enquadramento central, o grain e o degradê full-width foram preservados. Nenhuma máscara de recorte é aplicada.
+`public/images/hero/raffaela-hero.png` é uma cópia idêntica do arquivo enviado pela usuária. Nenhuma pessoa foi gerada e nenhum rosto ou roupa foi alterado. O fundo claro original está visível: a máscara de recorte da versão escura não é aplicada nesta versão.
 
-O Next Image otimiza a entrega. O grain `.hero-grain` e o degradê `.hero-shade` são camadas absolutas com `inset: 0` no hero, independentes da largura máxima da imagem. A ordem explícita é fundo preto → fotografia (z-index 1) → grain (2) → degradê preto (3). O degradê alcança ambas as laterais da viewport e toda a borda inferior da primeira dobra. O degradê concentra o preto na parte inferior e preserva o rosto. Não existem glow, acentos coloridos ou interface lateral.
+O Next Image otimiza a entrega. O grain `.hero-grain` e o degradê `.hero-shade` são camadas absolutas com `inset: 0` no hero, independentes da largura máxima da imagem. A ordem explícita é fundo claro → fotografia (z-index 1) → grain (2) → degradê preto (3). O degradê alcança ambas as laterais da viewport e toda a borda inferior da primeira dobra. O degradê concentra o preto na parte inferior e preserva o rosto. Não existem glow, acentos coloridos ou interface lateral.
 
 A escala está em `.portrait-plane`: até 88% da composição, limitada a 2160px e à altura da viewport. Os tokens ativos são `--bg`, `--foreground` e `--portrait-black`. A imagem fica centralizada, com ajuste de enquadramento para mobile. Textura em `public/textures/grain.svg`.
 
@@ -40,4 +40,4 @@ As fontes permanecem configuradas em `next/font` para o retorno dos textos; o bu
 
 Após validar a base, reinserir headline e convite. Storytelling, cases, experiência e contato ainda não foram implementados.
 
-A altura visual do degradê foi reduzida em 50%: termina em 29% da altura no desktop e 30% no mobile. A opacidade do grain passou de 0,16 para 0,192 (+20%).
+O fundo da tela usa #fdfdfd (RGB 253, 253, 253), o tom mais frequente nas bordas claras da imagem original, para minimizar a diferença entre fotografia e página.
