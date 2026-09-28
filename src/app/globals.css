@@ -1,6 +1,6 @@
 @import "tailwindcss";
 :root {
-  --bg: #fafafa;
+  --bg: #000000;
   --foreground: #111111;
   --portrait-black: #000000;
 }
@@ -14,12 +14,12 @@ body { font-family: var(--font-sans), sans-serif; -webkit-font-smoothing: antial
 .portrait-reveal { position: absolute; inset: 0; isolation: isolate; overflow: hidden; }
 .portrait-reveal img { object-fit: contain; filter: grayscale(1); }
 /* Hero-wide layers: photograph < grain < black gradient. */
-.hero-grain { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: url("/textures/grain.svg"); opacity: .16; mix-blend-mode: multiply; }
-.hero-shade { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: linear-gradient(to top, var(--portrait-black) 0%, var(--portrait-black) 20%, rgb(0 0 0 / 82%) 28%, rgb(0 0 0 / 38%) 38%, rgb(0 0 0 / 8%) 46%, transparent 58%); }
+.hero-grain { position: absolute; inset: 0; z-index: 2; pointer-events: none; background: url("/textures/grain.svg"); opacity: .192; mix-blend-mode: multiply; }
+.hero-shade { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: linear-gradient(to top, var(--portrait-black) 0%, var(--portrait-black) 10%, rgb(0 0 0 / 82%) 14%, rgb(0 0 0 / 38%) 19%, rgb(0 0 0 / 8%) 23%, transparent 29%); }
 .scroll-space { min-height: 50vh; background: var(--bg); }
 @media (max-width: 700px) {
   .hero-stage { min-height: 480px; }
-  .hero-shade { background: linear-gradient(to top, var(--portrait-black) 0%, var(--portrait-black) 32%, rgb(0 0 0 / 80%) 38%, rgb(0 0 0 / 25%) 48%, transparent 60%); }
+  .hero-shade { background: linear-gradient(to top, var(--portrait-black) 0%, var(--portrait-black) 16%, rgb(0 0 0 / 80%) 19%, rgb(0 0 0 / 25%) 24%, transparent 30%); }
   .portrait-plane { width: 190%; max-width: 1100px; }
 }
 @media (prefers-reduced-motion: reduce) {
