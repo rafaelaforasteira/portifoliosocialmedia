@@ -1,75 +1,41 @@
 # Raffaela Forasteira — portfólio
 
-Primeira dobra editorial do portfólio de Social Media, composta com a imagem oficial enviada por Raffaela. Apenas o hero e um bloco vazio de 50vh para testar scroll; nenhuma segunda seção foi criada.
+Base visual do hero em validação: fundo branco acinzentado, fotografia original um pouco menor, degradê preto preso à imagem e grain fino. Todos os textos e elementos de interface foram retirados temporariamente. A próxima seção continua sendo apenas um bloco vazio para testes de scroll.
 
-## Stack e execução
+## Executar e verificar
 
-Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, GSAP e @gsap/react. Fontes Archivo Black e Manrope, otimizadas e servidas localmente por `next/font/google`. Node.js 22 ou superior recomendado.
+Stack: Next.js 16, App Router, React 19, TypeScript, Tailwind CSS 4 e GSAP. Node.js 22 ou superior recomendado.
 
 ```bash
 npm ci
 npm run dev
-# http://localhost:3000
 npm run lint
 npm run typecheck
 npm run build
 npm start
 ```
 
-O build precisa de acesso ao Google Fonts para baixar as fontes. O navegador do visitante não faz solicitações ao Google Fonts. Imagens são otimizadas pelo Next.js; use uma hospedagem que execute Next.js com Node.js.
+Com o servidor local rodando, `npm run test:e2e` verifica nove resoluções (mobile, HD e ultrawide até 3440×1440), ausência de texto, imagem carregada, ausência de overflow, alinhamento do degradê à foto e movimento reduzido. Usa Edge headless; para outro ambiente, configure o browser em `playwright.config.ts`. Capturas ficam em `.qa/`, ignorado pelo Git.
 
-## Arquitetura
+## Estrutura
 
-- `src/app/`: layout, metadados, página, favicon e estilos globais/tokens.
-- `src/components/hero/`: composição, fotografia oficial, headline e convite de scroll.
-- `src/lib/animations/hero.ts`: sequência de entrada, parallax e resposta ao scroll, com cleanup via GSAP matchMedia.
-- `src/lib/constants/hero.ts`: caminho, descrição acessível e enquadramento da fotografia.
-- `public/images/hero/`: asset fotográfico substituível.
-- `public/textures/`: textura SVG leve e repetível.
-- `tests/`: verificação de layout, console, navegação por teclado e movimento reduzido.
+- `src/components/hero/Hero.tsx`: mantém a composição original, renderizando somente o retrato nesta etapa.
+- `HeroPortrait.tsx`: fotografia, degradê e grain dentro de um único contêiner.
+- `HeroHeadline.tsx` e `ScrollIndicator.tsx`: copy preservada para futura reinserção; não são renderizados.
+- `src/lib/constants/hero.ts`: caminho e descrição acessível da foto.
+- `src/lib/animations/hero.ts`: entrada por opacidade, desativada com movimento reduzido.
+- `src/app/globals.css`: fundo, escala, posição e tratamento monocromático.
 
-O texto e a imagem permanecem disponíveis sem JavaScript. As animações são uma melhoria progressiva. Nenhum vídeo, WebGL ou biblioteca de smooth scroll é utilizado.
+## Foto original e tratamento
 
-## Fotografia oficial
+`public/images/hero/raffaela-hero.png` é uma cópia idêntica do arquivo enviado pela usuária. Nenhuma pessoa foi gerada e nenhum rosto ou roupa foi alterado. O fundo claro original está visível: a máscara de recorte da versão escura não é aplicada nesta versão.
 
-A imagem enviada pela usuária foi copiada sem alterações para `public/images/hero/raffaela-hero.png`. Rosto, óculos, cabelo, roupa e expressão pertencem ao arquivo original: não há fotografia gerada ou substituição da pessoa.
+O Next Image otimiza a entrega. O degradê `.portrait-shade` e o grain `.portrait-grain` são camadas de exibição, dimensionadas pelo mesmo contêiner da foto. O degradê concentra o preto na parte inferior e preserva o rosto. Não existem glow, acentos coloridos ou interface lateral.
 
-O fundo claro é integrado ao ambiente com uma máscara de transparência separada: `raffaela-hero-mask.png`. A máscara preserva integralmente uma região protegida do rosto e suaviza o fundo claro ao redor do cabelo. O arquivo original permanece intacto. Para reproduzir a máscara, execute `node scripts/create-portrait-mask.mjs` (Sharp). Essa máscara é específica desta foto; uma nova fotografia exige uma máscara correspondente.
+A escala está em `.portrait-plane`: até 88% da composição, limitada a 2160px e à altura da viewport. Os tokens ativos são `--bg`, `--foreground` e `--portrait-black`. A imagem fica centralizada, com ajuste de enquadramento para mobile. Textura em `public/textures/grain.svg`.
 
-O caminho e o alt ficam em `src/lib/constants/hero.ts`. O degradê preto inferior está em `.portrait-shade`, e a luz lilás em `.atmosphere`, ambos em `src/app/globals.css`. O Next Image entrega a fotografia em tamanhos e formatos otimizados.
+As fontes permanecem configuradas em `next/font` para o retorno dos textos; o build requer acesso ao Google Fonts. A máscara e seu script da versão anterior foram mantidos no repositório, mas não participam da renderização atual.
 
-## Direção visual e tokens
+## Próximas etapas
 
-Tokens centralizados no início de `src/app/globals.css`:
-
-| Token | Uso |
-| --- | --- |
-| `--bg`, `--bg-secondary` | Preto principal e secundário |
-| `--foreground`, `--muted` | Texto principal e detalhes |
-| `--purple`, `--purple-light`, `--purple-deep`, `--glow` | Iluminação lilás |
-| `--yellow` | Pequenas marcações |
-| `--glass`, `--line` | Vidro e traços |
-
-A composição tem largura máxima de 2560px. Em proporções acima de 2:1, o retrato é dimensionado pela altura para preservar o enquadramento em ultrawide. Abaixo de 700px, a foto, a headline e o CTA recebem um arranjo específico. O rodapé respeita `safe-area-inset-bottom`. Fragmentos decorativos são ocultos dos leitores de tela e não recebem cliques.
-
-## Ajustar movimento
-
-Edite os offsets da timeline em `src/lib/animations/hero.ts`: luz 150ms, foto 250ms, introdução 400ms, frase principal 600ms, marcação editorial 900ms, convite 1100ms e seta 1300ms. Os atributos `data-depth` controlam a amplitude do parallax em cada camada. As distâncias de scroll ficam no mesmo arquivo.
-
-O parallax só funciona com ponteiro preciso em telas acima de 700px. `prefers-reduced-motion: reduce` desativa entradas GSAP, scroll animado, parallax e movimento da seta. Eventos e triggers são removidos quando o componente desmonta ou a preferência muda.
-
-## Verificação
-
-Com o servidor local rodando:
-
-```bash
-npm run test:e2e
-```
-
-Os testes usam Microsoft Edge headless (instalado no ambiente de desenvolvimento). Para outro ambiente, altere `channel` em `playwright.config.ts`, ou remova a opção e instale Chromium com `npx playwright install chromium`.
-
-São cobertas as resoluções 375×667, 390×844, 430×932, 1366×768, 1440×900, 1920×1080, 2560×1440, 2560×1080 e 3440×1440. Capturas para revisão visual são salvas em `.qa/` (ignorado pelo Git). É possível testar uma build de produção definindo `PLAYWRIGHT_BASE_URL`.
-
-## Próximas áreas previstas
-
-A estrutura está preparada para receber apresentação/storytelling, posicionamento, cases, processo, experiência e contato. Essas áreas não foram implementadas nem receberam conteúdo fictício. O link “Vem me conhecer” aponta, por enquanto, para `#continuacao`, o bloco vazio de teste.
+Após validar a base, reinserir headline e convite. Storytelling, cases, experiência e contato ainda não foram implementados.
