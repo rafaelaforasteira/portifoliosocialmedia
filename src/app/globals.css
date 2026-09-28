@@ -10,7 +10,7 @@ html, body { margin: 0; background: var(--bg); color: var(--foreground); }
 body { font-family: var(--font-sans), sans-serif; -webkit-font-smoothing: antialiased; }
 .hero { position: relative; min-height: 100svh; overflow: clip; isolation: isolate; }
 .hero-stage { position: relative; z-index: 1; width: min(100%, 2560px); height: 100svh; min-height: 480px; margin-inline: auto; }
-.portrait-plane { position: absolute; top: 50%; left: 50%; translate: -50% -50%; width: min(88%, 190svh, 2160px); aspect-ratio: 1916 / 821; pointer-events: none; }
+.portrait-plane { position: absolute; top: 50%; left: 50%; translate: -50% -50%; width: min(88%, 190svh, 2160px); aspect-ratio: 1950 / 807; pointer-events: none; }
 .portrait-reveal { position: absolute; inset: 0; isolation: isolate; overflow: hidden; }
 .portrait-reveal img { object-fit: contain; filter: grayscale(1); }
 /* Hero-wide layers: photograph < grain < black gradient. */

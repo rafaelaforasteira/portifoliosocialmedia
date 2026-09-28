@@ -28,7 +28,7 @@ Com o servidor local rodando, `npm run test:e2e` verifica nove resoluções (mob
 
 ## Foto original e tratamento
 
-`public/images/hero/raffaela-hero.png` é uma cópia idêntica do arquivo enviado pela usuária. Nenhuma pessoa foi gerada e nenhum rosto ou roupa foi alterado. O fundo claro original está visível: a máscara de recorte da versão escura não é aplicada nesta versão.
+`public/images/hero/raffaela-hero-dark.png` é uma cópia idêntica da nova imagem de fundo preto enviada pela usuária (1950×807). Nenhuma pessoa foi gerada e nenhum rosto ou roupa foi alterado. O fundo preto faz parte da nova fotografia. O fundo claro do hero, o enquadramento central, o grain e o degradê full-width foram preservados. Nenhuma máscara de recorte é aplicada.
 
 O Next Image otimiza a entrega. O grain `.hero-grain` e o degradê `.hero-shade` são camadas absolutas com `inset: 0` no hero, independentes da largura máxima da imagem. A ordem explícita é fundo claro → fotografia (z-index 1) → grain (2) → degradê preto (3). O degradê alcança ambas as laterais da viewport e toda a borda inferior da primeira dobra. O degradê concentra o preto na parte inferior e preserva o rosto. Não existem glow, acentos coloridos ou interface lateral.
 
